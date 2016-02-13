@@ -1,0 +1,16 @@
+
+when HTTP_REQUEST {
+set HOST [string tolower [HTTP::host]]
+    
+if { [HTTP::header exists "True-Client-IP"] and ([HTTP::header "True-Client-IP"] != "") }{ 
+set True_Client_IP [HTTP::header "True-Client-IP"]
+} else {
+set True_Client_IP 0.0.0.0
+}
+
+
+if { ($HOST contains "domain.com") and ([class match $True_Client_IP equals CLASS_BLOCK_IP]) } {
+     discard
+
+   }
+}
