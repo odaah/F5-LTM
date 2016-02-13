@@ -1,0 +1,29 @@
+***************************
+iRULE_Akamai_IDS
+***************************
+
+#iRule has the following 2 functions
+#Block any non-Akamai Traffic 
+#Block any IP address in the "True-Client-IP" header that is identified to be malicious by IDS
+
+#Block any non-Akamai Traffic
+when HTTP_REQUEST {
+if { (not[HTTP::header exists "AT"]) 
+        or (not([HTTP::header value "AT"] equals "30a6621c-666e-42c2-9685-b9f1ee776989"))
+            or (not[class match [IP::addr[IP::client_addr]] equal CLASS_ALLOW_LIST])    } {
+reject
+event disable
+
+#Block based on True-Client-IP
+} elseif { ([HTTP::header exists "True-Client-IP"]) and (not([HTTP::header value "True-Client-IP"] equals ""))}{
+    set TRUE_CLIENT [HTTP::header values "True-Client-IP"]
+    if {[class match $TRUE_CLIENT equal CLASS_BLOCK_LIST]} {
+        reject
+    }
+} else {
+    set TRUE_CLIENT 0.0.0.0
+    if {[class match $TRUE_CLIENT equal CLASS_BLOCK_LIST]} {
+        reject
+    }
+}
+}
