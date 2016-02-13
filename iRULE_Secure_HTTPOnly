@@ -1,0 +1,19 @@
+when HTTP_RESPONSE {
+   set CK [HTTP::header values "Set-Cookie"]
+   HTTP::header remove "Set-Cookie"
+
+   foreach ANYCOOKIE $CK {
+      if {$ANYCOOKIE ne ""} {
+         HTTP::header insert "Set-Cookie" "${ANCYOOKIE}; HttpOnly"
+}
+}
+}
+
+when HTTP_RESPONSE {
+foreach mycookie [HTTP::cookie names] {
+HTTP::cookie secure $mycookie enable
+ }
+}
+
+
+#https://support.f5.com/kb/en-us/solutions/public/11000/300/sol11324.html
