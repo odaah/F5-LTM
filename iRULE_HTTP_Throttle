@@ -1,0 +1,51 @@
+when RULE_INIT {              
+	   set static::maxRate 36
+	   set static::windowSecs 30
+	   set static::timeout 60
+	}  
+
+when HTTP_REQUEST {
+set HOST [string tolower [HTTP::host]]
+set URI [string tolower [HTTP::uri]]
+
+# HTTP Throttling enabled only for POST method and specific URL                   
+if { ( ( $HOST equals "www.domain.co.jp" ) and  
+
+(( $URI equals "/chocowa2012/select/?q=confirm") or ( $URI equals "/chocowa2012/select/" )) ) } { 
+
+
+# If "True-Client-IP" header does not exist, iRule processing is stopped for
+# HTTP_REQUEST event.
+
+ if {[HTTP::header exists True-Client-IP]} {
+   set CLIENT_IP [HTTP::header True-Client-IP]
+ } else {
+   event disable
+ }  
+
+
+set CURRENT_TIME [clock seconds]                                     
+set WINDOW [expr {$CURRENT_TIME - $static::windowSecs}]
+set GETPOSTCount 0                                                   
+
+foreach { REQUEST_TIME  } [table keys -subtable "GHPH:${CLIENT_IP}"] {                        
+#count GETs & POSTs with start time > $WINDOW, delete the rest                           
+
+      if { $REQUEST_TIME > $WINDOW } {                                                   
+           incr GETPOSTCount 1                                                                    
+         } else {                                                                               
+           table delete -subtable "GHPH:${CLIENT_IP}" $REQUEST_TIME                                
+         }                                                                                      
+      }                                                                                         
+                                                                                                
+      if { $GETPOSTCount < $static::maxRate } {                                                    
+         #add new record to array w/CLIENT_IP.rand + CURRENT_TIME                                 
+         set REQUEST_ID "GHPH:${CLIENT_IP}"                                                         
+         table set -subtable $REQUEST_ID $CURRENT_TIME "ignored" $static::timeout                 
+         } else {                                                                               
+            #log -noname local0. "POST Rejected: current GETPOSTCount for ${CLIENT_IP}: $GETPOSTCount" 
+            HTTP::respond 501 content "Request blockedExceeded requests/sec limit."             
+            return                                                                              
+         }                                                                                      
+   }                                                                                            
+}
