@@ -1,0 +1,31 @@
+
+#################
+### CLIENT-SIDE 
+#################
+
+when HTTP_REQUEST { 
+    if { [HTTP::cookie exists "ASP.NET_SessionId"]} { 
+    set SESSIONID [HTTP::cookie "ASP.NET_SessionId"]
+    } else {
+    set SESSIONID [findstr [HTTP::uri] ASP.NET_SessionId 11 ";"]
+    }
+   
+    if { $SESSIONID != "" } {             
+    persist uie $SESSIONID 1800  
+    }                               
+}
+
+#################
+### SERVER-SIDE 
+#################
+
+when HTTP_RESPONSE {   
+
+if { [HTTP::cookie exists "ASP.NET_SessionId"] } {
+set SESSIONID [HTTP::cookie "ASP.NET_SessionId"]
+}
+
+if { $SESSIONID != "" }{
+persist add uie $SESSIONID 1800
+}
+}
