@@ -1,0 +1,46 @@
+when HTTP_REQUEST {
+set HOST [string tolower [HTTP::host]]
+set SRCADDR [IP::remote_addr]
+
+if { $HOST contains ".v." }{
+
+if { [HTTP::method] equals "GET" } {
+set SESSIONID [findstr [HTTP::uri] "uuid=" 5 20]
+set KEY [crc32 $HOST$SESSIONID]
+
+persist hash $KEY 30
+
+} elseif { (([HTTP::method] equals "POST") and ([HTTP::uri] contains "/pmm/campxml.jsp")) } {
+
+  if {[HTTP::header "Content-Length"] ne "" && [HTTP::header "Content-Length"] <= 1048}{
+    set CONTENT [HTTP::header "Content-Length"]
+  } else {
+      set CONTENT 1048
+  }
+  if { $CONTENT > 0 } {
+    HTTP::collect $CONTENT
+  }
+} elseif { $HOST contains ".studio.domain.com" } {
+pool POOL-studio
+set KEY [crc32 $HOST$SRCADDR]
+persist hash $KEY 14400
+
+} elseif { $HOST contains ".studio.vfp.com" } {
+pool POOL-vfp-studio
+set KEY [crc32 $HOST$SRCADDR]
+persist hash $KEY 14400
+}
+}
+}
+
+when HTTP_REQUEST_DATA {
+if { (([HTTP::method] equals "POST") and ([HTTP::uri] contains "/pmm/campxml.jsp")) } {
+
+set HOST [string tolower [HTTP::host]]
+set SESSIONID [findstr [HTTP::payload] "uuid=" 5 20]
+set KEY [crc32 $HOST$SESSIONID]
+
+persist hash $KEY 30
+
+}
+} 
