@@ -1,0 +1,24 @@
+# This irule is used in persistence profile persist-https_plus_s for
+# cookie persistence across services.
+# used by Web servers.
+# Access path: Browser --> Web servers --> App servers
+# Web servers pass the cookies between clients and app servers.
+
+
+# Check if there is a cookie and lookup persistence table 
+# if the entry does not exist, loadbalance and save record 
+when HTTP_REQUEST {
+	if { [HTTP::cookie exists "LBSESSIONID"] } {
+		persist uie [HTTP::cookie value "LBSESSIONID"]
+	}
+}
+# For initial requests, we have to calculate MD5 
+# checksum of the server's IP, convert it to hex, 
+# then finally store it as a cookie and create persistence record 
+when HTTP_RESPONSE {
+	if { ![HTTP::cookie exists "LBSESSIONID"] } {
+#		binary scan [md5 [IP::server_addr]] H* md5var junk
+		HTTP::cookie insert name "LBSESSIONID" path / value [LB::server addr]
+		persist add uie [HTTP::cookie value "LBSESSIONID"]
+	}
+}
