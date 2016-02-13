@@ -1,0 +1,29 @@
+###HTTP_Redirect is forwarded to Client after changing "http://" to "https://"###
+
+when HTTP_RESPONSE {   
+  log local0. "Redirect Maybe"   
+  set resp 200                                                              
+  if { [HTTP::status] != $resp} {                                                      
+    # respond with 301 using original Location value   
+    log local0. "Redirect Executed"                                 
+    HTTP::respond 301 Location [string map { http://https:// } [HTTP::header Location]]
+  }                                                                                     
+}
+
+
+###HTTP_Redirect is intercepted and GET sent to server
+###GET uses {HTTP::Header Location} after mapping "http://" to "https://"
+
+
+when HTTP_REQUEST {
+set orig_host [HTTP::host]
+}
+
+when HTTP_RESPONSE {
+  if { [HTTP::is_redirect] } {
+    set redir_hdr [HTTP::header location]
+    log local0. "Redirect Started $redir_hdr $orig_host"     
+    HTTP::retry "GET [string map { http:// https:// } [HTTP::header Location]] HTTP/1.1\r\nHost: $orig_host\r\n\r\n"
+    log local0. "Redirect Executed [string map { http:// https:// } [HTTP::header Location]]"
+  }
+}
