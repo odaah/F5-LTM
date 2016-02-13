@@ -1,0 +1,28 @@
+when CLIENT_ACCEPTED {
+    set DEFAULT_POOL [LB::server pool]
+}
+when HTTP_REQUEST {
+    set DEBUG_05 1
+    set LOG_PREFIX [IP::client_addr] 
+    if { $DEBUG_05 } { log local0. "  --[HTTP::host] -->[HTTP::uri]" }
+    if {  [HTTP::host] eq "www.domain.com"  and  [HTTP::uri] starts_with "/Pages/maintenance.aspx"  } { 
+       if { $DEBUG_05 } { log local0. "$LOG_PREFIX: HTTP\:\:respond 200 sorry page" }
+	    HTTP::respond 200 content "
+		     <html>
+				<head>
+					<title>Maintenance Page </title>
+				</head>
+				<body>
+					<center> 	   
+						<img src=\"downtimeimage.png\" border=\"0\" style=\"border:none;max-width:100%;\" /> 	  
+					</center>
+				</body>
+			</html>
+		"
+	   
+	}
+	if { [HTTP::uri] ends_with "downtimeimage.png" } {
+          HTTP::respond 200 content [b64decode [class element -value 0 downtimeimage ]] "Content-Type" "image/png" 
+	}
+ 
+}
