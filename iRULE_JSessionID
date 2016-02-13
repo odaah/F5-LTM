@@ -1,0 +1,15 @@
+when HTTP_REQUEST { 
+ if { [HTTP::cookie exists "JSESSIONID"] } { 
+ persist uie [HTTP::cookie "JSESSIONID"] 1800 
+ } else { 
+ set jsess [findstr [HTTP::uri] "jsessionid" 11 ";"] 
+ if { $jsess != "" } { 
+ persist uie $jsess 1800
+ } 
+ } 
+} 
+when HTTP_RESPONSE { 
+ if { [HTTP::cookie exists "JSESSIONID"] } { 
+ persist add uie [HTTP::cookie "JSESSIONID"] 1800 
+ } 
+}
