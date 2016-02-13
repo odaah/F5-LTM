@@ -1,0 +1,33 @@
+when HTTP_RESPONSE {
+   if { [catch { set CK_VALUE [HTTP::header values "Set-Cookie"]
+      HTTP::header remove "Set-Cookie"
+
+      foreach value $CK_VALUE {
+         if { "" != $value } {
+            set TEST_VALUE [string tolower $value]
+            set LENGTH_VALUE [string length $value]
+            switch -glob $TEST_VALUE {
+               "*;secure*" -
+               "*; secure*" { }
+               default { set value "$value; Secure"; }
+            }
+
+################
+##Customer may require only "Secure" cookie
+################
+#            switch -glob $TEST_VALUE {
+#               "*;httponly*" -
+#               "*; httponly*" { }
+#               default { set value "$value; HttpOnly"; }
+#            }
+################
+
+
+            HTTP::header insert "Set-Cookie" $value
+
+         }
+      }
+   } ] } {
+      log local0. "Exception thrown, client_addr=[client_addr] HttpOnly and/or Secure cookie attributes may not have been set"
+   }
+}
