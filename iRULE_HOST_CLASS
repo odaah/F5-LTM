@@ -1,0 +1,20 @@
+when CLIENT_ACCEPTED {
+set DEFAULT [LB::server pool]
+}
+
+when HTTP_REQUEST {                                                         
+set HOST [string tolower [HTTP::host]]                                      
+set URI [string tolower [HTTP::uri]]                                                               
+                                                                            
+if  { $HOST equals "www.hsf.com" }{                                         
+HTTP::respond 301 Location "http://www.domain.com[HTTP::uri]"
+} elseif { [class match $URI starts_with CLASS_HSF] } {
+
+set DOMAIN [class match -value $URI contains CLASS_HSF]
+HTTP::respond 301 Location "http://$DOMAIN"
+} else {
+pool $DEFAULT
+}
+}
+
+
