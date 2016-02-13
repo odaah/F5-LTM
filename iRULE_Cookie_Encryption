@@ -1,0 +1,21 @@
+when HTTP_REQUEST {
+	#set variables cookienname, passphrase and defaultpool
+	set cookiename [HTTP::host]
+	set passphrase "1234"
+		if { [HTTP::cookie exists $cookiename] } {
+			#decrypt cookie
+			HTTP::cookie decrypt $cookiename $passphrase
+			#renew persistance cookie
+			persist cookie insert $cookiename "0d 01:00:00"
+}		else { 
+			persist cookie insert $cookiename "0d 01:00:00"
+	}
+}
+when HTTP_RESPONSE {
+	#check for correct cookie in response
+	if { [HTTP::cookie exists $cookiename] } {
+		#encrypt cookie
+		HTTP::cookie encrypt $cookiename $passphrase
+	}
+}               
+                                       
