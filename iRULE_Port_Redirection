@@ -1,0 +1,3 @@
+when LB_SELECTED {   
+pool [LB::server pool] member [LB::server addr] 81 
+}
