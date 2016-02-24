@@ -25,8 +25,8 @@ pool POOL-studio
 set KEY [crc32 $HOST$SRCADDR]
 persist hash $KEY 14400
 
-} elseif { $HOST contains ".studio.vfp.com" } {
-pool POOL-vfp-studio
+} elseif { $HOST contains ".studio.vf.com" } {
+pool POOL-vf-studio
 set KEY [crc32 $HOST$SRCADDR]
 persist hash $KEY 14400
 }
