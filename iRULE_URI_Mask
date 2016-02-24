@@ -7,9 +7,9 @@ if { $host contains "devtest.domain.com" } {
 SSL::disable serverside
 }
 
-if { $uri_low contains "/dwaydev/dwayweb.dll?dwaysession" } {
+if { $uri_low contains "/dwdev/dwweb.dll?dwsession" } {
 
-HTTP::uri [string map {/dwaydev/dwayweb.dll?dwaysession /dwaydev/tffcweb20070228.105834.dll?TenFoldFCSession} [HTTP::uri]] 
+HTTP::uri [string map {/dwdev/dwweb.dll?dwsession /dwdev/tffcweb20070228.105834.dll?TenFoldFCSession} [HTTP::uri]] 
 
 pool POOL-DEV2
 }
@@ -17,8 +17,8 @@ pool POOL-DEV2
 
 when HTTP_RESPONSE {
 
-if { [HTTP::header values Location] contains "/dwaydev/tffcweb20070228.105834.dll?TenFoldFCSession" } {
+if { [HTTP::header values Location] contains "/dwdev/tffcweb20070228.105834.dll?TenFoldFCSession" } {
 
-HTTP::header replace Location [string map { /dwaydev/tffcweb20070228.105834.dll?TenFoldFCSession /dwaydev/dwayweb.dll?dwaysession } [HTTP::header value Location]]
+HTTP::header replace Location [string map { /dwdev/tffcweb20070228.105834.dll?TenFoldFCSession /dwdev/dwayweb.dll?dwsession } [HTTP::header value Location]]
 }
 }
