@@ -6,11 +6,11 @@ when HTTP_REQUEST {
 set HOST [string tolower [HTTP::host]]                                      
 set URI [string tolower [HTTP::uri]]                                                               
                                                                             
-if  { $HOST equals "www.hsf.com" }{                                         
+if  { $HOST equals "www.domainhs.com" }{                                         
 HTTP::respond 301 Location "http://www.domain.com[HTTP::uri]"
 } elseif { [class match $URI starts_with CLASS_HSF] } {
 
-set DOMAIN [class match -value $URI contains CLASS_HSF]
+set DOMAIN [class match -value $URI contains CLASS_HS]
 HTTP::respond 301 Location "http://$DOMAIN"
 } else {
 pool $DEFAULT
