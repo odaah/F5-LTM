@@ -1,24 +1,20 @@
 when HTTP_REQUEST {
+set HOST [string tolower [HTTP::host]]
+set URI  [string tolower [HTTP::uri]] 
 
-set host [string tolower [HTTP::host]]
-set uri_low [string tolower [HTTP::uri]] 
-
-if { $host contains "devtest.domain.com" } {
+if { $HOST contains "devtest.domain.com" } {
+#Disable SSL	
 SSL::disable serverside
 }
 
-if { $uri_low contains "/dwdev/dwweb.dll?dwsession" } {
-
-HTTP::uri [string map {/dwdev/dwweb.dll?dwsession /dwdev/tffcweb20070228.105834.dll?TenFoldFCSession} [HTTP::uri]] 
-
+if { $URI contains "/wdev/wweb.ll?wsession" } {
+HTTP::uri [string map {/wdev/wweb.ll?wsession /wdev/wweb.ll?FoldSession} [HTTP::uri]] 
 pool POOL-DEV2
 }
 }
 
 when HTTP_RESPONSE {
-
-if { [HTTP::header values Location] contains "/dwdev/tffcweb20070228.105834.dll?TenFoldFCSession" } {
-
-HTTP::header replace Location [string map { /dwdev/tffcweb20070228.105834.dll?TenFoldFCSession /dwdev/dwayweb.dll?dwsession } [HTTP::header value Location]]
+if { [HTTP::header values Location] contains "/wdev/wweb.ll?FoldSession" } {
+HTTP::header replace Location [string map {/wdev/wweb.ll?FoldSession /wdev/wweb.ll?wsession} [HTTP::header value Location]]
 }
 }
