@@ -1,0 +1,45 @@
+#Different Redirects that can be utilized based on needs.
+
+########################
+ 302 Redirects
+########################
+when HTTP_REQUEST {
+	HTTP::redirect https://www.domain.com/
+}
+
+########################
+ 301 Redirects
+########################
+when HTTP_REQUEST {
+	HTTP::respond Location 301 https://www.domain.com/
+}
+
+########################
+Conditional Redirect:
+########################
+# Matching a condition
+when HTTP_REQUEST {
+    if {[HTTP::host] eq "domain.com"} {
+		HTTP::respond Location 301 https://www.domain.com/
+    }
+}
+
+# NOT matching a condition
+when HTTP_REQUEST {
+    if { not ([HTTP::host] eq "domain.com") } {
+		HTTP::respond Location 301 https://www.domain.com/
+    }
+}
+
+# Multiple conditions
+when HTTP_REQUEST {
+    if { ([HTTP::host] eq "domain.com") and ([HTTP::uri] eq "/login")} {
+		HTTP::respond Location 301 https://www.domain.com/login/
+    }
+}
+
+
+
+
+
+
