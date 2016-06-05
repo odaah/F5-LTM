@@ -1,4 +1,4 @@
-#Different Redirects that can be utilized based on needs.
+#Different Redirects
 
 ########################
  302 Redirects
@@ -14,9 +14,9 @@ when HTTP_REQUEST {
 	HTTP::respond Location 301 https://www.domain.com/
 }
 
-########################
-Conditional Redirect:
-########################
+############################
+IF-Conditional Redirect:
+############################
 # Matching a condition
 when HTTP_REQUEST {
     if {[HTTP::host] eq "domain.com"} {
@@ -38,8 +38,86 @@ when HTTP_REQUEST {
     }
 }
 
+#if & elseif
+when CLIENT_ACCEPTED {
+   set default_pool [LB::server pool]
+}
+when HTTP_REQUEST {
+    if { ([HTTP::host] eq "domain1.com") } {
+		HTTP::respond Location 301 https://www.domain1.com/login/
+    } elseif { ([HTTP::host] eq "domain2.com") } {
+		HTTP::respond Location 301 https://www.domain1.com/login/
+	} else {
+		pool $default_pool
+	}
+}
+
+##################################
+Switch-Conditional Redirect:
+##################################
+
+#Check multiple unique domains
+when CLIENT_ACCEPTED {
+   set default_pool [LB::server pool]
+}
+when HTTP_REQUEST {
+   switch -glob [HTTP::path] {
+      "domain1.com" {
+         HTTP::respond Location 301 https://www.domain1.com/
+	  }
+      "domain2.com" {
+         HTTP::respond Location 301 https://www.domain2.com/
+	  }
+      default {
+         pool $default_pool
+	  }
+   }
+}
+
+#Redirect to same URL
+when CLIENT_ACCEPTED {
+   set default_pool [LB::server pool]
+}
+when HTTP_REQUEST {
+   switch -glob [HTTP::path] {
+      "domain1.com" -
+      "domain2.com" {
+         HTTP::respond Location 301 https://www.domain.com/
+	  }
+      default {
+         pool $default_pool
+	  }
+   }
+}
+
+############################
+Data Group
+############################
+
+class str_testclass { 
+   { 
+      "/str1" { "domain1.com" } 
+      "/str2" { "domain2.com" } 
+   } 
+}
 
 
+when CLIENT_ACCEPTED {
+set DEFAULT [LB::server pool]
+}
 
+when HTTP_REQUEST {                                                         
+set HOST [string tolower [HTTP::host]]                                      
+set URI [string tolower [HTTP::uri]]                                                               
+                                                                            
+if  { $HOST equals "www.domainhs.com" }{                                         
+	HTTP::respond 301 Location "http://www.domain.com[HTTP::uri]"
+	} elseif { [class match $URI starts_with CLASS_HSF] } {
+		set DOMAIN [class match -value $URI contains CLASS_HSF]
+		HTTP::respond 301 Location "http://$DOMAIN"
+	} else {
+		pool $DEFAULT
+	}
+}
 
 
