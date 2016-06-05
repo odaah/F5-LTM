@@ -94,7 +94,7 @@ when HTTP_REQUEST {
 Data Group
 ############################
 
-class str_testclass { 
+class CLASS_HSF { 
    { 
       "/str1" { "domain1.com" } 
       "/str2" { "domain2.com" } 
