@@ -1,0 +1,10 @@
+when HTTP_REQUEST {
+if { [HTTP::host] contains "abcd.com" } {
+HTTP::host [string map {abcd.com xyz.com} [HTTP::host]] 
+}
+
+when HTTP_RESPONSE {
+if { [HTTP::header values Location] contains "xyz.com" } {
+HTTP::header replace Location [string map {xyz.com abcd.com} [HTTP::header value Location]]
+}
+}
