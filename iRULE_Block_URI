@@ -1,0 +1,6 @@
+when HTTP_REQUEST {
+set URI [string tolower[HTTP::uri]]
+if { not ([class match $URI eq CLASS_ALLOWED_URI]) } {
+discard
+}
+}
