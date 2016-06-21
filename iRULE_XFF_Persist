@@ -1,0 +1,7 @@
+when HTTP_REQUEST { 
+    if {[HTTP::header X-Forwarded-For] != ""} then {
+		persist uie [lindex  [ split [HTTP::header X-Forwarded-For] "," ] 0]
+    } else {
+		persist uie [IP::client_addr]
+	}
+}
