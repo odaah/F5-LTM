@@ -1,15 +1,10 @@
 
 when CLIENT_ACCEPTED {
-if {  ([class match [whereis [IP::client_addr] continent] equals continent ] or [class match [whereis [IP::client_addr] country] equals country ])} {
-
+if {  ([class match [whereis [IP::client_addr] continent] equals continent ] 
+         or [class match [whereis [IP::client_addr] country] equals country ])} {
   pool pool_00_staging
-}
-
-elseif { [whereis [IP::client_addr] continent] equals “NA” and [whereis [IP::client_addr] country] equals “US” } {
-
+} elseif { [whereis [IP::client_addr] continent] equals “NA” and [whereis [IP::client_addr] country] equals “US” } {
   pool pool_01_staging
-}
-else
-{ 
+} else { 
   drop 
 }
